@@ -1,0 +1,22 @@
+{
+  "name": "barrage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.16.5",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.31.1",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {}
+}
