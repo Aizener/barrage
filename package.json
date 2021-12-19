@@ -1,14 +1,15 @@
 {
   "name": "cvs-barrage",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
-  "main": "index.ts",
+  "main": "./src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.16.5",
     "rollup-plugin-babel": "^4.4.0",

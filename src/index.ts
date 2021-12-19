@@ -3,18 +3,18 @@
  * By.2021-12-17 22:12
  */
 type MessageStyle = {
-  color: string,
-  fontSize: string,
-  fontFamily: string
+  color?: string,
+  fontSize?: string,
+  fontFamily?: string
 }
 
 type Message = {
-  x: number,
-  y: number,
-  id: string,
+  x?: number,
+  y?: number,
+  id?: string,
   text: string,
-  speed: number,
-  style: MessageStyle
+  speed?: number,
+  style?: MessageStyle
 }
 
 export default class Barrage {
@@ -56,13 +56,14 @@ export default class Barrage {
       fontFamily = 'Microsoft YaHei',
       color = '#fff'
     } = message.style || {}
+    !message.speed && (message.speed = 3)
     const [x, y] = this.getPositoin(parseInt(fontSize))
     this.list.push({
       x,
       y,
       id: String(Math.ceil(Math.random() * 1000)) + y + message.speed * y,
       text: message.text,
-      speed: message.speed || 3,
+      speed: message.speed,
       style: {
         color,
         fontSize,
@@ -117,7 +118,18 @@ export default class Barrage {
     }
     this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
     const ids: Array<string> = []
-    for (const [idx, item] of this.list.entries()) {
+    for (const item of this.list as Array<{
+      x: number,
+      y: number,
+      id: string,
+      text: string,
+      speed: number,
+      style: {
+        color: string,
+        fontSize: string,
+        fontFamily: string
+      }
+    }>) {
       item.x -= item.speed
       if (item.x >= this.cvs.width) {
         continue
@@ -133,7 +145,7 @@ export default class Barrage {
       }
     }
     // 放在循环外删除，否则会造成闪烁
-    this.list = this.list.filter((message: Message) => !ids.includes(message.id))
+    this.list = this.list.filter((message: Message) => !ids.includes(message.id as string))
     this.rId = requestAnimationFrame(this.animate.bind(this))
   }
 }
