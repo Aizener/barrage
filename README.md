@@ -9,11 +9,11 @@
 通过包仓库安装的依赖，是`typescript`编写的，所以需要对应的`typescript`支持。
 - 使用`npm`安装：
 ```shell
-npm install --save cvs-barrage
+npm install --save simple-canvas-barrage
 ```
 - 使用`yarn`安装
 ```shell
-yarn add cvs-barrage
+yarn add simple-canvas-barrage
 ```
 
 ### 通过`jsdelivr cdn`引入
