@@ -21,6 +21,8 @@ export default class Barrage {
     private ctx;
     private list;
     private rId;
+    private isListen;
+    private listenerTimer;
     constructor(selector: string);
     /**
      * 当添加完弹幕后，执行后进行动画
@@ -47,6 +49,10 @@ export default class Barrage {
      * @returns 返回坐标点集合
      */
     private getPositoin;
+    /**
+     * 监听弹幕数据是否有新添加的数据
+     */
+    private handleListenr;
     /**
      * 弹幕移动动画
      * @returns void

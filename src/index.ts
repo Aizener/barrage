@@ -21,8 +21,11 @@ export default class Barrage {
   private cvs: HTMLCanvasElement // canvas元素
   private target: HTMLElement  // 实现弹幕的目标元素
   private ctx!: CanvasRenderingContext2D // canvas实例
-  private list: Array<Message> // 弹幕的集合
-  private rId: number | undefined // requestAnimationFrame返回的标识
+  private list: Array<Message> = [] // 弹幕的集合
+  private rId: number = 0 // requestAnimationFrame返回的标识
+  private isListen: boolean = false // 是否执行在监听有弹幕加入
+  private listenerTimer: NodeJS.Timer | undefined // 监听的定时器
+
 
   constructor(selector: string) {
     this.cvs = document.createElement('canvas')
@@ -31,7 +34,6 @@ export default class Barrage {
       throw new Error('ReferenceError: selector is not exist.')
     }
     this.target = target
-    this.list = [] 
     this.init()
   }
 
@@ -39,10 +41,7 @@ export default class Barrage {
    * 当添加完弹幕后，执行后进行动画
    */
   run() {
-    if (this.rId) {
-      cancelAnimationFrame(this.rId)
-    }
-    this.animate()
+    this.handleListenr()
   }
 
   /**
@@ -106,6 +105,24 @@ export default class Barrage {
     const y = Math.random() * (this.cvs.height - fontSize)
     return [Math.floor(x), Math.floor(y)]
   }
+  
+  /**
+   * 监听弹幕数据是否有新添加的数据
+   */
+  private handleListenr() {
+    if (this.isListen) {
+      return
+    }
+    this.isListen = true
+    this.listenerTimer = setInterval(() => {
+      if (this.list.length > 0) {
+        this.rId && cancelAnimationFrame(this.rId)
+        this.animate()
+        this.isListen = false
+        this.listenerTimer && clearInterval(this.listenerTimer)
+      }
+    }, 1e3)
+  }
 
   /**
    * 弹幕移动动画
@@ -114,6 +131,7 @@ export default class Barrage {
   private animate() {
     if (!this.list.length) {
       this.rId && cancelAnimationFrame(this.rId)
+      this.handleListenr()
       return
     }
     this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
