@@ -22,7 +22,7 @@
   <script>
     const b = new Barrage('.box')
     const ms = []
-    const max = 10
+    const max = 150
     for (let i = 0 ; i < max ; i ++) {
       const m = { text: '这是一条弹幕', speed: 3 }
       ms.push(m)
@@ -32,6 +32,7 @@
     b.addMessages(ms)
     setInterval(() => {
       b.addMessages(ms)
+      console.log(b.list.length)
     }, 500)
 
     document.querySelector('.run').addEventListener('click', () => {

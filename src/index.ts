@@ -17,7 +17,7 @@ type Message = {
   style?: MessageStyle
 }
 
-export default class Barrage {
+class Barrage {
   private cvs: HTMLCanvasElement // canvas元素
   private target: HTMLElement  // 实现弹幕的目标元素
   private ctx!: CanvasRenderingContext2D // canvas实例
@@ -25,6 +25,7 @@ export default class Barrage {
   private rId: number = 0 // requestAnimationFrame返回的标识
   private isListen: boolean = false // 是否执行在监听有弹幕加入
   private listenerTimer: NodeJS.Timer | null = null // 监听的定时器
+  private maxMessage: number = 1500 // 最大渲染弹幕数量
 
 
   constructor(selector: string) {
@@ -49,7 +50,10 @@ export default class Barrage {
    * @param message 弹幕对象
    * @returns 当前实例
    */
-  addMessage(message: Message): Barrage {
+  addMessage(message: Message): Barrage | void {
+    if (this.list.length > this.maxMessage * 2) {
+      return
+    }
     const {
       fontSize = '20px',
       fontFamily = 'Microsoft YaHei',
@@ -57,7 +61,7 @@ export default class Barrage {
     } = message.style || {}
     !message.speed && (message.speed = 3)
     const [x, y] = this.getPositoin(parseInt(fontSize))
-    this.list.push({
+    this.pushMessage({
       x,
       y,
       id: String(Math.ceil(Math.random() * 1000)) + y + message.speed * y,
@@ -112,6 +116,14 @@ export default class Barrage {
     this.ctx = this.cvs.getContext('2d') as CanvasRenderingContext2D
     this.target.appendChild(this.cvs)
   }
+
+  /**
+   * 将弹幕推入弹幕列表
+   * @param message 弹幕对象
+   */
+  private pushMessage(message: Message) {
+    this.list.push(message)
+  }
  
   /**
    * 获取生成的弹幕坐标点
@@ -163,8 +175,8 @@ export default class Barrage {
       return
     }
     this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
-    const ids: Array<string> = []
-    for (const item of this.list as Array<{
+    const ids: Array<string> = [], list = this.list.slice(0, this.maxMessage)
+    for (const item of list as Array<{
       x: number,
       y: number,
       id: string,
@@ -191,7 +203,13 @@ export default class Barrage {
       }
     }
     // 放在循环外删除，否则会造成闪烁
-    this.list = this.list.filter((message: Message) => !ids.includes(message.id as string))
+    ids.forEach((id: string) => {
+      const idx = this.list.findIndex((item: Message) => item.id === id)
+      idx > 0 && this.list.splice(idx, 1)
+    })
+    // this.list = this.list.filter((message: Message) => !ids.includes(message.id as string))
     this.rId = requestAnimationFrame(this.animate.bind(this))
   }
 }
+
+export default Barrage

@@ -9,13 +9,14 @@
 ### 通过npm或者yarn仓库引用
 
 该插件支持`typescript`，通过包仓库安装的依赖。  
-因为插件自动插入需要生成弹幕的元素，所以会对目标元素进行侵入式的修改：将会把目标元素的`position`设置为`relative`。
+因为插件自动插入需要生成弹幕的元素，所以会对目标元素进行侵入式的修改：**将会把目标元素的`position`设置为`relative`**。
 
 - 使用`npm`安装：
   
   ```shell
   npm install --save simple-canvas-barrage
   ```
+
 - 使用`yarn`安装
   
   ```shell
@@ -31,6 +32,7 @@
   ```html
   <script src="https://cdn.jsdelivr.net/gh/Aizener/barrage@master/dist/index.umd.js"></script>
   ```
+
 - 使用`esm`模块
   
   ```html
@@ -40,6 +42,8 @@
   ```
 
 ## 使用
+
+### 初始化
 
 使用`simple-canvas-barrage`的方式非常简单，只需要两步：
 
@@ -62,6 +66,12 @@ barrage.addMessages({ text: '这是一条弹幕' })
 
 **注意：`run`方法不要多次执行！**
 
+### 其他
+
+目前，`Barrage`的最大渲染弹幕数量是`1500`条弹幕，超过这个数量的弹幕只能在当前弹幕消失之后再进行渲染；  
+
+当存储弹幕列表的`list`数量超过`3000`时，既最大渲染量的两倍，再次执行`addMessage`时无法添加弹幕。
+
 ### 方法
 
 | 方法          | 作用                                        |
@@ -69,6 +79,8 @@ barrage.addMessages({ text: '这是一条弹幕' })
 | addMessage  | 添加一条弹幕， 类型：<a href="#message">Message</a> |
 | addMessages | 添加多条弹幕                                    |
 | run         | 启动弹幕插件，会监听是否有弹幕数据的添加，并发射添加的弹幕             |
+| clear       | 清除当前弹幕列表里面的数据（包括画布还未渲染的弹幕）                |
+| stop        | 暂停插件的运行，若要回复则需要执行`run`方法                  |
 
 ### 类型
 

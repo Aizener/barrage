@@ -15,7 +15,7 @@ declare type Message = {
     speed?: number;
     style?: MessageStyle;
 };
-export default class Barrage {
+declare class Barrage {
     private cvs;
     private target;
     private ctx;
@@ -23,6 +23,7 @@ export default class Barrage {
     private rId;
     private isListen;
     private listenerTimer;
+    private maxMessage;
     constructor(selector: string);
     /**
      * 当添加完弹幕后，执行后进行动画
@@ -33,7 +34,7 @@ export default class Barrage {
      * @param message 弹幕对象
      * @returns 当前实例
      */
-    addMessage(message: Message): Barrage;
+    addMessage(message: Message): Barrage | void;
     /**
      * 添加多条弹幕到弹幕列表中去
      * @param messages 弹幕对象集合
@@ -53,6 +54,11 @@ export default class Barrage {
      */
     private init;
     /**
+     * 将弹幕推入弹幕列表
+     * @param message 弹幕对象
+     */
+    private pushMessage;
+    /**
      * 获取生成的弹幕坐标点
      * @returns 返回坐标点集合
      */
@@ -71,4 +77,4 @@ export default class Barrage {
      */
     private animate;
 }
-export {};
+export default Barrage;
