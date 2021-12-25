@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .box {
+    width: 100%;
+    height: 300px;
+    background-color: skyblue;
+  }
+</style>
+<body>
+  <div class="box"></div>
+  <button class="run">Run</button>
+  <button class="clear">Clear</button>
+  <button class="stop">Stop</button>
+  <script src="./dist/index.umd.js"></script>
+  <script>
+    const b = new Barrage('.box')
+    const ms = []
+    const max = 10
+    for (let i = 0 ; i < max ; i ++) {
+      const m = { text: '这是一条弹幕', speed: 3 }
+      ms.push(m)
+    }
+
+    b.run()
+    b.addMessages(ms)
+    setInterval(() => {
+      b.addMessages(ms)
+    }, 500)
+
+    document.querySelector('.run').addEventListener('click', () => {
+      b.run()
+    })
+    document.querySelector('.clear').addEventListener('click', () => {
+      b.clear()
+    })
+    document.querySelector('.stop').addEventListener('click', () => {
+      b.stop()
+    })
+  </script>
+</body>
+</html>

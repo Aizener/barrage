@@ -41,6 +41,14 @@ export default class Barrage {
      */
     addMessages(messages: Array<Message>): Barrage;
     /**
+     * 清除当前弹幕列表里的弹幕
+     */
+    clear(): void;
+    /**
+     * 暂停发射弹幕，会移除掉监听
+     */
+    stop(): void;
+    /**
      * 初始化：元素的宽高、和canvas实例
      */
     private init;
@@ -53,6 +61,10 @@ export default class Barrage {
      * 监听弹幕数据是否有新添加的数据
      */
     private handleListenr;
+    /**
+     * 执行动画方法
+     */
+    private handleAnimate;
     /**
      * 弹幕移动动画
      * @returns void

@@ -24,7 +24,7 @@ export default class Barrage {
   private list: Array<Message> = [] // 弹幕的集合
   private rId: number = 0 // requestAnimationFrame返回的标识
   private isListen: boolean = false // 是否执行在监听有弹幕加入
-  private listenerTimer: NodeJS.Timer | undefined // 监听的定时器
+  private listenerTimer: NodeJS.Timer | null = null // 监听的定时器
 
 
   constructor(selector: string) {
@@ -83,6 +83,23 @@ export default class Barrage {
   }
 
   /**
+   * 清除当前弹幕列表里的弹幕
+   */
+  clear() {
+    this.list = []
+    this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
+  }
+
+  /**
+   * 暂停发射弹幕，会移除掉监听
+   */
+  stop() {
+    this.listenerTimer && clearInterval(this.listenerTimer)
+    this.listenerTimer = null
+    this.rId && cancelAnimationFrame(this.rId)
+  }
+
+  /**
    * 初始化：元素的宽高、和canvas实例
    */
   private init() {
@@ -114,14 +131,25 @@ export default class Barrage {
       return
     }
     this.isListen = true
+    if (this.list.length) {
+      this.handleAnimate()
+      return
+    }
     this.listenerTimer = setInterval(() => {
-      if (this.list.length > 0) {
-        this.rId && cancelAnimationFrame(this.rId)
-        this.animate()
-        this.isListen = false
-        this.listenerTimer && clearInterval(this.listenerTimer)
-      }
+      this.handleAnimate()
     }, 1e3)
+  }
+
+  /**
+   * 执行动画方法
+   */
+  private handleAnimate() {
+    if (this.list.length > 0) {
+      this.rId && cancelAnimationFrame(this.rId)
+      this.animate()
+      this.isListen = false
+      this.listenerTimer && clearInterval(this.listenerTimer)
+    }
   }
 
   /**
