@@ -86,11 +86,13 @@ barrage.addMessages({ text: '这是一条弹幕' })
 
 #### <span id="message">Message</span>
 
-| 属性    | 作用          | 默认值                                         |
-|:-----:|:-----------:|:-------------------------------------------:|
-| text  | 弹幕文字内容      | -                                           |
-| speed | 弹幕的速度，像素为单位 | 3                                           |
-| style | 弹幕的样式       | 见：<a href="#message-style">MessageStyle</a> |
+|    属性    |                             作用                             |                     默认                      |
+| :--------: | :----------------------------------------------------------: | :-------------------------------------------: |
+|    text    |                         弹幕文字内容                         |                       -                       |
+|   speed    |                    弹幕的速度，像素为单位                    |                       3                       |
+|   style    |                          弹幕的样式                          | 见：<a href="#message-style">MessageStyle</a> |
+|    type    | 弹幕的显示方式，`normal`即从右往左移动；`layer`是直接显示在屏幕上 |                    normal                     |
+| layerStyle | `type`为`layer`时需要传入，见：<a href="#layer-style">LayerStyle</a> |                       -                       |
 
 #### <span id="message-style">MessageStyle</span>
 
@@ -99,3 +101,13 @@ barrage.addMessages({ text: '这是一条弹幕' })
 | color      | 弹幕颜色  | #fff            |
 | fontSize   | 弹幕的大小 | 20px            |
 | fontFamily | 弹幕的字体 | Microsoft YaHei |
+
+#### <span id="layer-style">LayerStyle</span>
+
+|   属性    |                             作用                             | 默认值 |
+| :-------: | :----------------------------------------------------------: | :----: |
+|     x     |                    弹幕出现在屏幕的横坐标                    |   -    |
+|     y     |                    弹幕出现在屏幕的纵坐标                    |   -    |
+| placement | 弹幕出现的位置：`top`,`center`,`bottom`三个可选，设置该属性后，`x`和`y`将无效 |   -    |
+|   time    |                        弹幕消失的时间                        | 3000ms |
+

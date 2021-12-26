@@ -19,21 +19,68 @@
   <button class="clear">Clear</button>
   <button class="stop">Stop</button>
   <script src="./dist/index.umd.js"></script>
+  <!-- <script type="module">
+    import Barrage from './dist/index.esm.js'
+    console.log(Barrage)
+  </script> -->
   <script>
     const b = new Barrage('.box')
-    const ms = []
-    const max = 150
-    for (let i = 0 ; i < max ; i ++) {
-      const m = { text: '这是一条弹幕', speed: 3 }
-      ms.push(m)
-    }
-
-    b.run()
-    b.addMessages(ms)
+    let x = 0, y = 0
+    b.addMessage({
+      text: '这是浮层弹幕',
+      type: Barrage.layer,
+      style: {
+        fontSize: Math.ceil(Math.random() * 8) + 20 + 'px',
+        color: ['red', 'green', 'blue'][Math.floor(Math.random() * 3)]
+      },
+      layerStyle: {
+        x: x,
+        y: y
+      }
+    })
     setInterval(() => {
-      b.addMessages(ms)
-      console.log(b.list.length)
+      b.addMessages([
+        {
+          text: '这是浮层弹幕',
+          type: Barrage.layer,
+          style: {
+            fontSize: 20 + 'px',
+            color: ['red', 'green', 'blue'][Math.floor(Math.random() * 3)]
+          },
+          layerStyle: {
+            placement: 'center'
+          }
+        },
+        {
+          text: '这是浮层弹幕',
+          type: Barrage.layer,
+          style: {
+            fontSize: 20 + 'px',
+            color: ['red', 'green', 'blue'][Math.floor(Math.random() * 3)]
+          },
+          layerStyle: {
+            x: Math.random() * 1500,
+            y: Math.random() * 300
+          }
+        },
+        {
+          text: '这是浮层弹幕',
+          type: Barrage.layer,
+          style: {
+            fontSize: 20 + 'px',
+            color: ['red', 'green', 'blue'][Math.floor(Math.random() * 3)]
+          },
+          layerStyle: {
+            x: Math.random() * 1500,
+            y: Math.random() * 300
+          }
+        }
+      ])
     }, 500)
+    setInterval(() => {
+      b.addMessages(['这是浮层弹幕1', '这是浮层弹幕2', '这是浮层弹幕3'])
+    }, 500)
+    b.run()
 
     document.querySelector('.run').addEventListener('click', () => {
       b.run()

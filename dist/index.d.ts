@@ -2,6 +2,17 @@
  * 基于Canvas的弹幕插件
  * By.2021-12-17 22:12
  */
+declare enum MessageType {
+    normal = 0,
+    layer = 1
+}
+declare type LayerStyle = {
+    x: number;
+    y: number;
+    placement?: string;
+    time?: number;
+    removing?: boolean;
+};
 declare type MessageStyle = {
     color?: string;
     fontSize?: string;
@@ -13,7 +24,9 @@ declare type Message = {
     id?: string;
     text: string;
     speed?: number;
+    type?: MessageType;
     style?: MessageStyle;
+    layerStyle?: LayerStyle;
 };
 declare class Barrage {
     private cvs;
@@ -24,23 +37,30 @@ declare class Barrage {
     private isListen;
     private listenerTimer;
     private maxMessage;
+    private lastTime;
+    private delta;
+    private fps;
+    static normal: MessageType;
+    static layer: MessageType;
     constructor(selector: string);
     /**
      * 当添加完弹幕后，执行后进行动画
      */
     run(): void;
     /**
-     * 添加一条弹幕到弹幕列表中去
-     * @param message 弹幕对象
+     * * 添加一条弹幕到弹幕列表中去
+     * @param message 弹幕对象，可以为string或者Message对象
      * @returns 当前实例
      */
+    addMessage(message: string): Barrage | void;
     addMessage(message: Message): Barrage | void;
+    addMessage(message: Message | string): Barrage | void;
     /**
      * 添加多条弹幕到弹幕列表中去
      * @param messages 弹幕对象集合
      * @returns 当前实例
      */
-    addMessages(messages: Array<Message>): Barrage;
+    addMessages(messages: Array<Message> | Array<string>): Barrage;
     /**
      * 清除当前弹幕列表里的弹幕
      */

@@ -2,6 +2,19 @@
  * 基于Canvas的弹幕插件
  * By.2021-12-17 22:12
  */
+enum MessageType {
+  normal,
+  layer
+}
+
+type LayerStyle = {
+  x: number,
+  y: number,
+  placement?: string,
+  time?: number
+  removing?: boolean
+}
+
 type MessageStyle = {
   color?: string,
   fontSize?: string,
@@ -14,7 +27,9 @@ type Message = {
   id?: string,
   text: string,
   speed?: number,
-  style?: MessageStyle
+  type?: MessageType,
+  style?: MessageStyle,
+  layerStyle?: LayerStyle
 }
 
 class Barrage {
@@ -24,9 +39,14 @@ class Barrage {
   private list: Array<Message> = [] // 弹幕的集合
   private rId: number = 0 // requestAnimationFrame返回的标识
   private isListen: boolean = false // 是否执行在监听有弹幕加入
-  private listenerTimer: NodeJS.Timer | null = null // 监听的定时器
+  private listenerTimer: number | null = null // 监听的定时器
   private maxMessage: number = 1500 // 最大渲染弹幕数量
+  private lastTime: number = 0
+  private delta: number = 0
+  private fps: string = '0'
 
+  static normal = MessageType.normal
+  static layer = MessageType.layer
 
   constructor(selector: string) {
     this.cvs = document.createElement('canvas')
@@ -46,32 +66,51 @@ class Barrage {
   }
 
   /**
-   * 添加一条弹幕到弹幕列表中去
-   * @param message 弹幕对象
+   * * 添加一条弹幕到弹幕列表中去
+   * @param message 弹幕对象，可以为string或者Message对象
    * @returns 当前实例
    */
-  addMessage(message: Message): Barrage | void {
+  addMessage(message: string): Barrage | void;
+  addMessage(message: Message): Barrage | void;
+  addMessage(message: Message | string): Barrage | void;
+  addMessage(message: Message | string): Barrage | void {
     if (this.list.length > this.maxMessage * 2) {
       return
     }
-    const {
-      fontSize = '20px',
-      fontFamily = 'Microsoft YaHei',
-      color = '#fff'
-    } = message.style || {}
+    if (typeof message === 'string') {
+      const _message: Message = { text: message }
+      message = _message
+    }
+    // 初始化弹幕样式
+    if (!message.style) {
+      message.style = {}
+    }
+    !message.style.fontSize && (message.style.fontSize = '20px')
+    !message.style.fontFamily && (message.style.fontFamily = 'Microsoft YaHei') 
+    !message.style.color && (message.style.color = '#fff') 
     !message.speed && (message.speed = 3)
-    const [x, y] = this.getPositoin(parseInt(fontSize))
+    // 判断弹幕类型
+    const layerStyle: LayerStyle = { x: 0, y: 0 }
+    if (message.type === MessageType.layer) {
+      const style = message.layerStyle as LayerStyle
+      layerStyle.x = style.x
+      layerStyle.y = style.y
+      layerStyle.time = style.time || 3000
+      layerStyle.placement = style.placement
+    } else {
+      message.type = MessageType.normal
+    }
+    // 初始化弹幕位置
+    const [x, y] = this.getPositoin(message)
     this.pushMessage({
       x,
       y,
       id: String(Math.ceil(Math.random() * 1000)) + y + message.speed * y,
       text: message.text,
       speed: message.speed,
-      style: {
-        color,
-        fontSize,
-        fontFamily
-      }
+      style: message.style,
+      type: message.type,
+      layerStyle
     })
     return this
   }
@@ -81,8 +120,8 @@ class Barrage {
    * @param messages 弹幕对象集合
    * @returns 当前实例
    */
-  addMessages(messages: Array<Message>): Barrage {
-    messages.forEach((message: Message) => this.addMessage(message))
+  addMessages(messages: Array<Message> | Array<string>): Barrage {
+    messages.forEach((message: Message | string) => this.addMessage(message))
     return this
   }
 
@@ -129,9 +168,33 @@ class Barrage {
    * 获取生成的弹幕坐标点
    * @returns 返回坐标点集合
    */
-  private getPositoin(fontSize: number): [number, number] {
-    const x = this.cvs.width
-    const y = Math.random() * (this.cvs.height - fontSize)
+  private getPositoin(message: Message): [number, number] {
+    let x = 0, y = 0, fontSize = parseInt((message.style as MessageStyle).fontSize as string)
+    if (message.type === MessageType.normal) {
+      x = this.cvs.width
+      y = Math.random() * (this.cvs.height - fontSize)
+    } else if (message.type === MessageType.layer) {
+      const layerStyle = message.layerStyle as LayerStyle
+      if (layerStyle.placement) {
+        x = Math.ceil(this.cvs.width / 2)
+        switch(layerStyle.placement) {
+          case 'top':
+            y = fontSize
+            break
+          case 'center':
+            y = Math.ceil((this.cvs.height - fontSize) / 2)
+            break
+          case 'bottom':
+            y = Math.ceil(this.cvs.height - 2 * fontSize)
+            break
+          default:
+            y = Math.ceil(this.cvs.height / 2)
+        }        
+      } else {
+        x = layerStyle.x
+        y = layerStyle.y
+      }
+    }
     return [Math.floor(x), Math.floor(y)]
   }
   
@@ -169,12 +232,15 @@ class Barrage {
    * @returns void
    */
   private animate() {
+    if (!this.lastTime) {
+      this.lastTime = Date.now()
+    }
+    this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
     if (!this.list.length) {
       this.rId && cancelAnimationFrame(this.rId)
       this.handleListenr()
       return
     }
-    this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
     const ids: Array<string> = [], list = this.list.slice(0, this.maxMessage)
     for (const item of list as Array<{
       x: number,
@@ -186,9 +252,11 @@ class Barrage {
         color: string,
         fontSize: string,
         fontFamily: string
-      }
+      },
+      type: MessageType,
+      layerStyle: LayerStyle
     }>) {
-      item.x -= item.speed
+      item.type === MessageType.normal && (item.x -= item.speed)
       if (item.x >= this.cvs.width) {
         continue
       }
@@ -197,17 +265,36 @@ class Barrage {
       this.ctx.font = `${fontSize} ${fontFamily}`
       this.ctx.fillStyle = color
       this.ctx.fillText(item.text, item.x, item.y + parseInt(item.style.fontSize))
-      const { width } = this.ctx.measureText(item.text)
-      if (item.x <= -width) {
-        ids.push(item.id)
-      }
+      if (item.type === MessageType.normal) {
+        const { width } = this.ctx.measureText(item.text)
+        if (item.x <= -width) {
+          ids.push(item.id)
+        }
+      } else if (item.type === MessageType.layer) {
+        !ids.includes(item.id) && ids.push(item.id)
+      } 
     }
     // 放在循环外删除，否则会造成闪烁
     ids.forEach((id: string) => {
       const idx = this.list.findIndex((item: Message) => item.id === id)
-      idx > 0 && this.list.splice(idx, 1)
+      const target = this.list[idx]
+      if (target.type === MessageType.normal) {
+        idx >= 0 && this.list.splice(idx, 1)
+      } else {
+        const layerStyle = target.layerStyle as LayerStyle
+        if (!layerStyle.removing) {
+          setTimeout(() => {
+            // 重新获取下标，之前下标会因为异步原因不准确
+            const idx = this.list.findIndex((item: Message) => item.id === id)
+            idx >= 0 && this.list.splice(idx, 1)
+          }, layerStyle.time)
+          layerStyle.removing = true
+        }
+      }
     })
-    // this.list = this.list.filter((message: Message) => !ids.includes(message.id as string))
+    this.delta = (Date.now() - this.lastTime) / 1000
+    this.lastTime = Date.now()
+    this.fps = (1 / this.delta).toFixed(2)
     this.rId = requestAnimationFrame(this.animate.bind(this))
   }
 }
