@@ -41,9 +41,6 @@ class Barrage {
   private isListen: boolean = false // 是否执行在监听有弹幕加入
   private listenerTimer: number | null = null // 监听的定时器
   private maxMessage: number = 1500 // 最大渲染弹幕数量
-  private lastTime: number = 0
-  private delta: number = 0
-  private fps: string = '0'
 
   static normal = MessageType.normal
   static layer = MessageType.layer
@@ -232,9 +229,6 @@ class Barrage {
    * @returns void
    */
   private animate() {
-    if (!this.lastTime) {
-      this.lastTime = Date.now()
-    }
     this.ctx.clearRect(0, 0, this.cvs.width, this.cvs.height)
     if (!this.list.length) {
       this.rId && cancelAnimationFrame(this.rId)
@@ -292,9 +286,6 @@ class Barrage {
         }
       }
     })
-    this.delta = (Date.now() - this.lastTime) / 1000
-    this.lastTime = Date.now()
-    this.fps = (1 / this.delta).toFixed(2)
     this.rId = requestAnimationFrame(this.animate.bind(this))
   }
 }
