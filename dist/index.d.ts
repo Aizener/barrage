@@ -37,9 +37,6 @@ declare class Barrage {
     private isListen;
     private listenerTimer;
     private maxMessage;
-    private lastTime;
-    private delta;
-    private fps;
     static normal: MessageType;
     static layer: MessageType;
     constructor(selector: string);
